@@ -1,0 +1,77 @@
+@page "/filter"
+
+@using BaseballPipeline.Shared.Models
+@using BaseballPipeline.Shared.Services
+
+@inject NavigationManager UriHelper
+@inject FilterService FilterService
+
+<div style="margin-left:25px;">
+    <h3>Filter</h3>
+    <EditForm Model="@filterModel" OnValidSubmit="@ApplyFilter">
+         <table>
+            <tr>
+                <td style="width:10px"><InputCheckbox @bind-Value="filterModel.Baserunning" /></td>
+                <td><label>Baserunning</label></td>
+            </tr>
+            <tr>
+                <td style="width:10px"><InputCheckbox @bind-Value="filterModel.Catching" /></td>
+                <td><label>Catching</label></td>
+            </tr>
+            <tr>
+                <td style="width:10px"><InputCheckbox @bind-Value="filterModel.Hitting" /></td>
+                <td><label>Hitting</label></td>
+            </tr>
+            <tr>
+                <td style="width:10px"><InputCheckbox @bind-Value="filterModel.Infield" /></td>
+                <td><label>Infield</label></td>
+            </tr>
+            <tr>
+                <td style="width:10px"><InputCheckbox @bind-Value="filterModel.Mindset" /></td>
+                <td><label>Mindset</label></td>
+            </tr>
+            <tr>
+                <td style="width:10px"><InputCheckbox @bind-Value="filterModel.Outfield" /></td>
+                <td><label>Outfield</label></td>
+            </tr>
+            <tr>
+                <td style="width:10px"><InputCheckbox @bind-Value="filterModel.Pitching" /></td>
+                <td><label>Pitching</label></td>
+            </tr>
+            <tr>
+                <td style="width:10px"><InputCheckbox @bind-Value="filterModel.SandC" /></td>
+                <td><label>Strength & Conditioning</label></td>
+            </tr>
+        </table>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <button class="btn btn-danger" @onclick="@Cancel">Cancel</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+
+    private FilterModel filterModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!(FilterService.Filters is null))
+        {
+            filterModel = FilterService.Filters;
+        }
+    }
+
+    private void Cancel()
+    {
+        UriHelper.NavigateTo("/");
+    }
+
+    private void ApplyFilter()
+    {
+        FilterService.SetFilters(filterModel);
+        UriHelper.NavigateTo("/");
+    }
+
+}

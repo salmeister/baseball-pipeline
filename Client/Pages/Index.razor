@@ -1,0 +1,125 @@
+﻿@page "/"
+
+@using BaseballPipeline.Shared.Models
+@using BaseballPipeline.Shared.Services
+@using BaseballPipeline.Shared.Helpers
+@using System.Linq.Expressions
+
+@inject IHttpClientFactory HttpClientFactory
+@inject QuoteService QuoteService
+@inject FilterService FilterService
+
+@if (entries == null)
+{
+    <br />
+    <br />
+    <br />
+    @((MarkupString)QuoteService.GetRandomQuoteHtml())
+}
+else
+{
+    <table>
+        <tbody>
+            <Virtualize Context="entry" Items="@entries" ItemSize="500" OverscanCount="5" SpacerElement="tr">
+                    <tr>
+                        <td id="entryRow" style="border:none;text-align:center;overflow: auto;" width="100%" height="100%">
+                            <label style="font-size:xx-small;color:white">@entry.EntryId</label>
+                            <iframe scrolling="no" frameborder="0" marginwidth="0" marginheight="0" src="https://platform.twitter.com/embed/index.html?id=@(entry.TweetID)" width="100%" height="@(entry.Height)"></iframe>
+                            @* @if (entry.TweetID.All(c => char.IsDigit(c)))
+                            {
+                                <iframe scrolling="no" frameborder="0" marginwidth="0" marginheight="0" src="https://platform.twitter.com/embed/index.html?id=@(entry.TweetID)" width="100%" height="@(entry.Height)"></iframe>
+                            }
+                            else
+                            {
+                                if (entry.TweetID.Contains("%2F"))
+                                {
+                                    <iframe frameborder="0" marginwidth="0" marginheight="0" src="https://www.facebook.com/plugins/post.php?href=@(entry.TweetID)&show_text=true" width="100%" height="100%" style="border:none;overflow:hidden" scrolling="no" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+                                }
+                                else
+                                {
+                                    <iframe frameborder="0" marginwidth="0" marginheight="0" src="https://www.youtube.com/embed/@(entry.TweetID)" width="100%" height="100%"></iframe>
+                                }
+                            } *@
+                        </td>
+                    </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+}
+
+@code {
+    private EntryModel[] entries;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        
+        // Get a HttpClient from IHttpClientFactory service with name explicitly.
+        var http = HttpClientFactory.CreateClient("BaseballPipeline.ServerAPI");
+        EntryModel[] allEntries = await http.GetFromJsonAsync<EntryModel[]>("Entry");
+
+        if (!(FilterService.Filters is null))
+        {
+            Expression<Func<EntryModel, bool>> predicate = Filter(FilterService.Filters);
+            entries = allEntries.Where(predicate.Compile()).ToArray();
+        }
+        else
+        {
+            entries = allEntries;
+        }
+
+    }
+
+    Expression<Func<EntryModel, bool>> Filter(FilterModel filterModel)
+    {
+        Expression<Func<EntryModel, bool>> predicate = PredicateBuilder.False<EntryModel>();
+
+        bool hasFilter = filterModel.GetType().GetProperties()
+                            .Where(pi => pi.GetValue(filterModel) is bool)
+                            .Select(pi => (bool)pi.GetValue(filterModel))
+                            .Any(value => value == true);
+
+        if (hasFilter)
+        {
+            if (filterModel.Hitting)
+            {
+                predicate = predicate.Or(e => e.ExistingTags.Contains(1));
+            }
+            if (filterModel.Pitching)
+            {
+                predicate = predicate.Or(e => e.ExistingTags.Contains(2));
+            }
+            if (filterModel.Infield)
+            {
+                predicate = predicate.Or(e => e.ExistingTags.Contains(3));
+            }
+            if (filterModel.Outfield)
+            {
+                predicate = predicate.Or(e => e.ExistingTags.Contains(4));
+            }
+            if (filterModel.Catching)
+            {
+                predicate = predicate.Or(e => e.ExistingTags.Contains(5));
+            }
+            if (filterModel.Baserunning)
+            {
+                predicate = predicate.Or(e => e.ExistingTags.Contains(8));
+            }
+            if (filterModel.SandC)
+            {
+                predicate = predicate.Or(e => e.ExistingTags.Contains(9));
+            }
+            if (filterModel.Mindset)
+            {
+                predicate = predicate.Or(e => e.ExistingTags.Contains(10));
+            }
+        }
+        else
+        {
+            predicate = PredicateBuilder.True<EntryModel>();
+        }
+
+        return predicate;
+    }
+
+}

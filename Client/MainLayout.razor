@@ -1,0 +1,18 @@
+﻿@inherits LayoutComponentBase
+
+
+<Layout Style="min-height: 100vh; background:initial">
+    <Sider Collapsible Theme="SiderTheme.Light" Breakpoint="BreakpointType.Xl" CollapsedWidth="0" Style="position:sticky;top:0;left:0;height:100%">
+        <NavMenu/>
+    </Sider>
+    <Layout Style="background:initial">
+        <Header Style="background: initial; height:50px">
+            <div class="text-center" style="height:50px;margin:0;padding:0">
+                <img src="icon-512.png" style="margin-top: 2px;margin-left:50px;height: 40px; vertical-align: top" />
+            </div>
+            <hr style="margin-top:-0.4em" />
+        </Header>
+        <br />
+        <Content Style="margin-left:65px;">@Body</Content>
+    </Layout>
+</Layout>

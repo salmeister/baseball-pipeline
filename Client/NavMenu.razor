@@ -1,0 +1,57 @@
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@using BaseballPipeline.Shared.Services
+
+@inject NavigationManager UriHelper
+@inject FilterService FilterService
+
+<Menu Mode="MenuMode.Inline" Theme="MenuTheme.Light" Style="height:100%">
+    <MenuItem Class="text-center p-0" Title="Baseball Pipeline" OnClick="@Reload" />
+    <MenuItem>
+        <span>
+            @if (filtered)
+            {
+                <Icon Type="filter" Theme="fill" />
+            }
+            else
+            {
+                <Icon Type="filter" Theme="outline" />
+            }
+            <MenuLink href="filter">
+                Filter
+            </MenuLink>
+        </span>
+    </MenuItem>
+    <MenuItem Title="@version" Disabled="true" />
+</Menu>
+
+@code {
+    string version = typeof(Program).Assembly.GetName().Version.ToString();
+    bool filtered = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!(FilterService.Filters is null))
+        {
+            filtered = true;
+        }
+
+        await base.OnInitializedAsync();
+        //FilterService.OnChange += OnFilterChange;
+    }
+
+    //protected override void OnInitialized()
+    //{
+    //    FilterService.OnFilterChange += OnFilterChange;
+    //}
+
+    //private void OnFilterChange()
+    //{
+    //    StateHasChanged();
+    //}
+
+    private void Reload()
+    {
+        UriHelper.NavigateTo("/", forceLoad: true);
+    }
+
+}

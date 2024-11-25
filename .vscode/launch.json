@@ -1,0 +1,20 @@
+{
+    // Use IntelliSense to find out which attributes exist for C# debugging
+    // Use hover for the description of the existing attributes
+    // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "blazorwasm",
+            "name": "Launch and Debug Blazor WebAssembly Application",
+            "request": "launch",
+            "timeout": 30000,
+            "cwd": "${workspaceFolder}/Server",
+            "url": "http://localhost:5432",
+            "browser": "edge",
+            "hosted": true,
+            "program": "${workspaceFolder}/Server/bin/Debug/net7.0/BaseballPipeline.Server.dll",
+            "preLaunchTask": "build"
+        }
+     ]
+ }
